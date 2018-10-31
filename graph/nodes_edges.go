@@ -227,3 +227,11 @@ func WeightedLinesOf(it WeightedLines) []WeightedLine {
 	}
 	return l
 }
+
+// Lines is a TemporalLine iterator
+type TemporalLines interface {
+	Iterator
+
+	// Temporal line returns the current TemporalLine from the iterator.
+	TemporalLine() TemporalLine
+}

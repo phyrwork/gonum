@@ -129,3 +129,51 @@ func (e *OrderedWeightedLines) WeightedLineSlice() []graph.WeightedLine {
 func (e *OrderedWeightedLines) Reset() {
 	e.idx = -1
 }
+
+// OrderedTemporalLines implements the graph.TemporalLines interfaces.
+// The iteration order of OrderedTemporalLines is the order of lines passed to
+// NewLineIterator.
+type OrderedTemporalLines struct {
+	idx   int
+	lines []graph.TemporalLine
+}
+
+// NewOrderedTemporalLines returns an OrderedTemporalLines initialized with the provided lines.
+func NewOrderedTemporalLines(lines []graph.TemporalLine) *OrderedTemporalLines {
+	return &OrderedTemporalLines{idx: -1, lines: lines}
+}
+
+// Len returns the remaining number of lines to be iterated over.
+func (e *OrderedTemporalLines) Len() int {
+	if e.idx >= len(e.lines) {
+		return 0
+	}
+	if e.idx <= 0 {
+		return len(e.lines)
+	}
+	return len(e.lines[e.idx:])
+}
+
+// Next returns whether the next call of TemporalLine will return a valid line.
+func (e *OrderedTemporalLines) Next() bool {
+	if uint(e.idx)+1 < uint(len(e.lines)) {
+		e.idx++
+		return true
+	}
+	e.idx = len(e.lines)
+	return false
+}
+
+// TemporalLine returns the current line of the iterator. Next must have been
+// called prior to a call to Line.
+func (e *OrderedTemporalLines) TemporalLine() graph.TemporalLine {
+	if e.idx >= len(e.lines) || e.idx < 0 {
+		return nil
+	}
+	return e.lines[e.idx]
+}
+
+// Reset returns the iterator to its initial state.
+func (e *OrderedTemporalLines) Reset() {
+	e.idx = -1
+}

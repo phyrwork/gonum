@@ -129,3 +129,51 @@ func (e *OrderedWeightedEdges) WeightedEdgeSlice() []graph.WeightedEdge {
 func (e *OrderedWeightedEdges) Reset() {
 	e.idx = -1
 }
+
+// OrderedTemporalEdges implements the graph.Edges and graph.EdgeSlicer interfaces.
+// The iteration order of OrderedTemporalEdges is the order of edges passed to
+// NewEdgeIterator.
+type OrderedTemporalEdges struct {
+	idx   int
+	edges []graph.TemporalEdge
+}
+
+// NewOrderedTemporalEdges returns an OrderedTemporalEdges initialized with the provided edges.
+func NewOrderedTemporalEdges(edges []graph.TemporalEdge) *OrderedTemporalEdges {
+	return &OrderedTemporalEdges{idx: -1, edges: edges}
+}
+
+// Len returns the remaining number of edges to be iterated over.
+func (e *OrderedTemporalEdges) Len() int {
+	if e.idx >= len(e.edges) {
+		return 0
+	}
+	if e.idx <= 0 {
+		return len(e.edges)
+	}
+	return len(e.edges[e.idx:])
+}
+
+// Next returns whether the next call of Edge will return a valid edge.
+func (e *OrderedTemporalEdges) Next() bool {
+	if uint(e.idx)+1 < uint(len(e.edges)) {
+		e.idx++
+		return true
+	}
+	e.idx = len(e.edges)
+	return false
+}
+
+// Edge returns the current edge of the iterator. Next must have been
+// called prior to a call to Edge.
+func (e *OrderedTemporalEdges) TemporalEdge() graph.TemporalEdge {
+	if e.idx >= len(e.edges) || e.idx < 0 {
+		return nil
+	}
+	return e.edges[e.idx]
+}
+
+// Reset returns the iterator to its initial state.
+func (e *OrderedTemporalEdges) Reset() {
+	e.idx = -1
+}
