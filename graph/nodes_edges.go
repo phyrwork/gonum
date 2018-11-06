@@ -227,3 +227,36 @@ func WeightedLinesOf(it WeightedLines) []WeightedLine {
 	}
 	return l
 }
+
+// TODO: Documentation
+type TemporalLines interface {
+	Iterator
+
+	// Line returns the current Line from the iterator.
+	TemporalLine() TemporalLine
+}
+
+// TODO: Documentation
+type TemporalLineSlicer interface {
+	TemporalLineSlice() []TemporalLine
+}
+
+// TODO: Documentation
+func TemporalLinesOf(it TemporalLines) []TemporalLine {
+	if it == nil {
+		return nil
+	}
+	switch it := it.(type) {
+	case TemporalLineSlicer:
+		return it.TemporalLineSlice()
+	}
+	ln := it.Len()
+	if ln == 0 {
+		return nil
+	}
+	l := make([]TemporalLine, 0, ln)
+	for it.Next() {
+		l = append(l, it.TemporalLine())
+	}
+	return l
+}
